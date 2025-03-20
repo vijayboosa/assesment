@@ -40,8 +40,7 @@ This project is a full-featured backend application for a job portal. Employers 
     - [1. Performance \& Scalability](#1-performance--scalability)
     - [2. Real-Time Notifications Enhancements](#2-real-time-notifications-enhancements)
     - [3. Security Enhancements](#3-security-enhancements)
-    - [4. Database \& Data Management](#4-database--data-management)
-    - [5. Developer Experience \& Documentation](#5-developer-experience--documentation)
+    - [4. Developer Experience \& Documentation](#4-developer-experience--documentation)
 
 
 
@@ -577,16 +576,7 @@ While the current implementation meets the core requirements of the assessment, 
 - **Security Headers:**  
   Use libraries like `helmet` to set various HTTP headers for added security.
 
-### 4. Database & Data Management
-
-- **Database Migrations:**  
-  Instead of using `sequelize.sync()`, use a dedicated migration tool (such as Sequelize CLI migrations) to manage database schema changes in production.
-
-- **Data Analytics & Reporting:**  
-  Incorporate data analytics to track job application trends, user activity, and system performance, which could be useful for both employers and platform administrators.
-
-
-### 5. Developer Experience & Documentation
+### 4. Developer Experience & Documentation
 
 - **API Documentation:**  
   Generate interactive API documentation using Swagger/OpenAPI, making it easier for developers to understand and test the endpoints.
