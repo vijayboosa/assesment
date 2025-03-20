@@ -15,7 +15,7 @@ This project is a full-featured backend application for a job portal. Employers 
     - [2. Install Dependencies](#2-install-dependencies)
     - [3. Configure Environment Variables](#3-configure-environment-variables)
     - [4. Start the Application](#4-start-the-application)
-    - [6. Access the Application](#6-access-the-application)
+    - [5. Access the Application](#5-access-the-application)
   - [API Routes Documentation](#api-routes-documentation)
     - [Base URL](#base-url)
     - [Auth Routes (`/api/auth`)](#auth-routes-apiauth)
@@ -206,7 +206,7 @@ For development with auto-reloading, you can use nodemon (if configured):
 npm run dev
 ```
 
-### 6. Access the Application
+### 5. Access the Application
 
 Open your browser and navigate to `http://localhost:3000/login.html` to view your application.
 
