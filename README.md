@@ -6,7 +6,7 @@ This project is a full-featured backend application for a job portal. Employers 
 
 - [Job Portal \& Real-Time Notification System](#job-portal--real-time-notification-system)
   - [Table of Contents](#table-of-contents)
-  - [⚠️ Disclaimer](#️-disclaimer)
+  - [⚠️Disclaimer](#️disclaimer)
   - [Features](#features)
   - [Tech Stack](#tech-stack)
   - [Project Structure](#project-structure)
@@ -47,19 +47,27 @@ This project is a full-featured backend application for a job portal. Employers 
 
 ---
 
-## ⚠️ Disclaimer
+## ⚠️Disclaimer
 
-**Authentication:**  
-The custom authentication implemented in this project is provided as a simple, just for my assessment. For production applications, it's highly recommended to use robust, third-party authentication providers that offer enhanced security, additional features, and reliable support. Some popular providers include:
+**Custom Authentication:**  
+The authentication implemented in this project is a simple, custom solution designed for demonstration purposes. For production-grade applications, it is highly recommended to use established third-party authentication providers. These providers offer advanced features like multi-factor authentication, robust session management, and enhanced security. Some popular options include:
 
 - **Auth0**
 - **Okta**
 - **Firebase Authentication**
 
-These services offer advanced features like multi-factor authentication, comprehensive user management, and improved security practices that are essential for production-grade systems.
-
 **Pagination:**  
-The current implementation for listing jobs does not include pagination. For a production environment, implementing pagination (using techniques such as offset and limit) is advisable to improve performance and usability when dealing with large datasets.
+The current implementation for listing jobs does not include pagination. In a production environment, implementing pagination using techniques such as offset and limit is essential to efficiently handle large datasets and improve overall performance and usability.
+
+**Real-Time Notifications:**  
+This project uses a basic WebSocket (Socket.IO) implementation for real-time notifications. Currently, notifications are delivered only to users who are online and logged in at the time of the event. For more robust notification systems—especially to handle offline notifications—consider using dedicated third-party services or message queuing systems. Popular services that can offer enhanced real-time and offline notifications include:
+
+- **Firebase Cloud Messaging (FCM)**
+- **Pusher**
+- **OneSignal**
+
+These providers can help ensure that notifications are delivered reliably, even when users are not actively connected to your application.
+
 
 --- 
 
