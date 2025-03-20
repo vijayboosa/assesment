@@ -1,0 +1,7 @@
+dev:
+  type: http
+  region: ap
+  to: localhost:5000
+  reserved_domain: assessment.onlocal.site
+
+

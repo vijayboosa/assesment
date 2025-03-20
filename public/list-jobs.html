@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Available Jobs</title>
+    <link rel="stylesheet" href="/css/output.css">
+<link rel="stylesheet" href="/css/animate.css">
+  </head>
+  <body class="bg-gray-100">
+    <!-- Toast container -->
+    <div
+      id="toast-container"
+      class="fixed bottom-5 right-5 z-50 flex flex-col space-y-2"
+    ></div>
+    <nav class="bg-gray-800">
+      <div class="max-w-7xl mx-auto px-4">
+        <div class="flex items-center justify-between h-16">
+          <div class="flex-shrink-0">
+            <a href="#" class="text-white text-xl font-bold">Assessment</a>
+          </div>
+          <div class="flex space-x-4">
+            <a
+              href="/list-jobs.html"
+              class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+              >Home</a
+            >
+            <a
+              href="/applied-jobs.html"
+              class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+              >Applied Jobs</a
+            >
+            <form id="logoutForm" class="inline">
+              <button
+                type="submit"
+                class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+              >
+                Logout
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </nav>
+    <div class="max-w-4xl mx-auto mt-10">
+      <h1 class="text-3xl font-bold mb-6">Available Jobs</h1>
+      <div id="jobsContainer" class="grid grid-cols-1 gap-6">
+        <!-- Job cards will be injected here -->
+      </div>
+      <div id="errorMessage" class="mt-4 text-center text-red-500"></div>
+    </div>
+
+    
+
+    <script src="/js/notify.js"></script>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="/js/js_soc.js"></script>
+    <script src="/js/auth_common.js"></script>
+    <script>
+      async function fetchJobs() {
+        try {
+          const response = await fetch("/api/jobs", { credentials: "include" });
+          const data = await response.json();
+          if (!response.ok) {
+            document.getElementById("errorMessage").textContent =
+              data.message || "Failed to load jobs.";
+            return;
+          }
+          const jobsContainer = document.getElementById("jobsContainer");
+          jobsContainer.innerHTML = "";
+          data.jobs.forEach((job) => {
+            const jobCard = document.createElement("div");
+            jobCard.className = "bg-white p-6 rounded shadow";
+            jobCard.innerHTML = `
+            <h2 class="text-xl font-bold">${job.title}</h2>
+            <p class="text-gray-600">Company: ${
+              job.employer
+                ? job.employer.fullName || job.employer.username
+                : "N/A"
+            }</p>
+            <p class="text-gray-600">Location: ${job.location || "N/A"}</p>
+            <p class="mt-2">${job.description.substring(0, 100)}...</p>
+            <a href="/job-detail.html?jobId=${
+              job.id
+            }" class="mt-4 inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">View Details</a>
+          `;
+            jobsContainer.appendChild(jobCard);
+          });
+        } catch (error) {
+          console.error("Error fetching jobs:", error);
+          document.getElementById("errorMessage").textContent =
+            "An unexpected error occurred.";
+        }
+      }
+      fetchJobs();
+    </script>
+  </body>
+</html>

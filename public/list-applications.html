@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Job Applications</title>
+    <link rel="stylesheet" href="/css/output.css">
+<link rel="stylesheet" href="/css/animate.css">
+  </head>
+  <body class="bg-gray-100">
+    <!-- Toast container -->
+    <div
+      id="toast-container"
+      class="fixed bottom-5 right-5 z-50 flex flex-col space-y-2"
+    ></div>
+    <nav class="bg-gray-800">
+      <div class="max-w-7xl mx-auto px-4">
+        <div class="flex items-center justify-between h-16">
+          <div class="flex-shrink-0">
+            <a href="#" class="text-white text-xl font-bold">Assessment</a>
+          </div>
+          <div class="flex space-x-4">
+            <a
+              href="/employer-jobs.html"
+              class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+              >Home</a
+            >
+            <a
+              href="/post-job.html"
+              class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+              >New Job</a
+            >
+            <form id="logoutForm" class="inline">
+              <button
+                type="submit"
+                class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+              >
+                Logout
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <div class="max-w-6xl mx-auto mt-10 bg-white p-8 rounded shadow">
+      <h1 class="text-3xl font-bold mb-6">Applications for Job</h1>
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead>
+          <tr>
+            <th
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+            >
+              Candidate
+            </th>
+            <th
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+            >
+              Email
+            </th>
+            <th
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+            >
+              Status
+            </th>
+            <th
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+            >
+              Applied At
+            </th>
+            <th
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+            >
+              Actions
+            </th>
+          </tr>
+        </thead>
+        <tbody id="applicationsBody" class="bg-white divide-y divide-gray-200">
+          <!-- Application rows will be injected here -->
+        </tbody>
+      </table>
+      <div id="errorMessage" class="mt-4 text-center text-red-500"></div>
+    </div>
+
+    
+
+    <script src="/js/notify.js"></script>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="/js/emp_soc.js"></script>
+    <script src="/js/auth_common.js"></script>
+    <script>
+      async function getCsrfToken() {
+        const response = await fetch("/api/auth/csrf-token", {
+          credentials: "include",
+        });
+        const data = await response.json();
+        return data.csrfToken;
+      }
+
+      document
+        .getElementById("logoutForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          try {
+            const csrfToken = await getCsrfToken();
+            const response = await fetch("/api/auth/logout", {
+              method: "POST",
+              credentials: "include",
+              headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-Token": csrfToken,
+              },
+            });
+            if (response.ok) {
+              window.location.href = "/login.html";
+            }
+          } catch (error) {
+            console.error("Logout error:", error);
+          }
+        });
+
+      function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+      }
+
+      function getStatusBadge(status) {
+        switch (status) {
+          case "pending":
+            return '<span class="bg-yellow-500 text-white px-2 py-1 rounded-full text-xs">Pending</span>';
+          case "rejected":
+            return '<span class="bg-red-500 text-white px-2 py-1 rounded-full text-xs">Rejected</span>';
+          case "interview_scheduled":
+            return '<span class="bg-green-500 text-white px-2 py-1 rounded-full text-xs">Interview Scheduled</span>';
+          default:
+            return (
+              '<span class="bg-gray-500 text-white px-2 py-1 rounded-full text-xs">' +
+              status +
+              "</span>"
+            );
+        }
+      }
+
+      async function rejectApplication(appId) {
+        const csrfToken = await getCsrfToken();
+        try {
+          const response = await fetch(`/api/application/${appId}/reject`, {
+            method: "POST",
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRF-Token": csrfToken,
+            },
+          });
+          const result = await response.json();
+          if (!response.ok) {
+            alert(result.message || "Failed to reject application.");
+            return;
+          }
+          document.getElementById(`status-${appId}`).innerHTML = getStatusBadge(
+            result.application.status
+          );
+          document.getElementById(`actions-${appId}`).innerHTML = "---";
+        } catch (error) {
+          console.error("Error rejecting application:", error);
+          alert("An unexpected error occurred.");
+        }
+      }
+
+      async function scheduleInterview(appId) {
+        const scheduledAt = prompt(
+          "Enter interview date/time (YYYY-MM-DD HH:MM):"
+        );
+        if (!scheduledAt) return;
+        const notes = prompt("Enter interview notes (optional):");
+        const csrfToken = await getCsrfToken();
+        try {
+          const response = await fetch(`/api/application/${appId}/schedule`, {
+            method: "POST",
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRF-Token": csrfToken,
+            },
+            body: JSON.stringify({ scheduledAt, notes }),
+          });
+          const result = await response.json();
+          if (!response.ok) {
+            alert(result.message || "Failed to schedule interview.");
+            return;
+          }
+          document.getElementById(`status-${appId}`).innerHTML = getStatusBadge(
+            "interview_scheduled"
+          );
+          document.getElementById(`actions-${appId}`).innerHTML = "";
+        } catch (error) {
+          console.error("Error scheduling interview:", error);
+          alert("An unexpected error occurred.");
+        }
+      }
+
+      async function fetchApplications(jobId) {
+        try {
+          const response = await fetch(
+            `/api/employer/jobs/${jobId}/applications`,
+            { credentials: "include" }
+          );
+          const data = await response.json();
+          if (!response.ok) {
+            document.getElementById("errorMessage").textContent =
+              data.message || "Failed to load applications.";
+            return;
+          }
+          const tbody = document.getElementById("applicationsBody");
+          tbody.innerHTML = "";
+          data.applications.forEach((app) => {
+            let actionCell;
+            if (app.status === "pending") {
+              actionCell = `<td class="px-6 py-4 whitespace-nowrap" id="actions-${app.id}">
+                  <button class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 mr-2" onclick="rejectApplication('${app.id}')">Reject</button>
+                  <button class="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600" onclick="scheduleInterview('${app.id}')">Schedule Interview</button>
+                </td>`;
+            } else {
+              actionCell = "";
+            }
+            const row = document.createElement("tr");
+            row.id = `application-${app.id}`;
+            row.innerHTML = `
+              <td class="px-6 py-4 whitespace-nowrap">
+                ${app.jobSeeker.fullName || app.jobSeeker.username}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                ${app.jobSeeker.email}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap" id="status-${app.id}">
+                ${getStatusBadge(app.status)}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                ${new Date(app.createdAt).toLocaleString()}
+              </td>
+              ${actionCell}
+
+            `;
+            tbody.appendChild(row);
+          });
+        } catch (error) {
+          console.error("Error fetching applications:", error);
+          document.getElementById("errorMessage").textContent =
+            "An unexpected error occurred.";
+        }
+      }
+
+      const jobId = getQueryParam("jobId");
+      if (jobId) {
+        fetchApplications(jobId);
+      } else {
+        document.getElementById("errorMessage").textContent =
+          "No job selected.";
+      }
+    </script>
+  </body>
+</html>

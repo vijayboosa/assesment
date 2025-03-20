@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Post a Job</title>
+    <link rel="stylesheet" href="/css/output.css">
+<link rel="stylesheet" href="/css/animate.css">
+  </head>
+  <body class="bg-gray-100">
+    <!-- Toast container -->
+    <div
+      id="toast-container"
+      class="fixed bottom-5 right-5 z-50 flex flex-col space-y-2"
+    ></div>
+    <nav class="bg-gray-800">
+      <div class="max-w-7xl mx-auto px-4">
+        <div class="flex items-center justify-between h-16">
+          <div class="flex-shrink-0">
+            <a href="#" class="text-white text-xl font-bold">Assessment</a>
+          </div>
+          <div class="flex space-x-4">
+            <a
+              href="/employer-jobs.html"
+              class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+              >Home</a
+            >
+            <a
+              href="/post-job.html"
+              class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+              >New Job</a
+            >
+            <form id="logoutForm" class="inline">
+              <button
+                type="submit"
+                class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+              >
+                Logout
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </nav>
+    <div class="max-w-xl mx-auto mt-10 bg-white p-8 rounded shadow">
+      <h1 class="text-2xl font-bold mb-6">Post a New Job</h1>
+      <form id="postJobForm">
+        <div class="mb-4">
+          <label class="block text-gray-700" for="title">Job Title</label>
+          <input
+            type="text"
+            id="title"
+            name="title"
+            placeholder="Enter job title"
+            required
+            class="w-full px-3 py-2 border rounded"
+          />
+        </div>
+        <div class="mb-4">
+          <label class="block text-gray-700" for="description"
+            >Description</label
+          >
+          <textarea
+            id="description"
+            name="description"
+            placeholder="Job description"
+            required
+            class="w-full px-3 py-2 border rounded"
+          ></textarea>
+        </div>
+        <div class="mb-4">
+          <label class="block text-gray-700" for="location">Location</label>
+          <input
+            type="text"
+            id="location"
+            name="location"
+            placeholder="Job location"
+            class="w-full px-3 py-2 border rounded"
+          />
+        </div>
+        <div class="mb-4">
+          <label class="block text-gray-700" for="salary">Salary</label>
+          <input
+            type="number"
+            id="salary"
+            name="salary"
+            placeholder="Salary"
+            class="w-full px-3 py-2 border rounded"
+          />
+        </div>
+        <button
+          type="submit"
+          id="postJobButton"
+          class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+        >
+          Post Job
+        </button>
+      </form>
+      <div id="message" class="mt-4 text-center"></div>
+    </div>
+
+
+    
+
+    <script src="/js/notify.js"></script>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="/js/emp_soc.js"></script>
+    <script src="/js/auth_common.js"></script>
+
+    <script>
+      async function getCsrfToken() {
+        const response = await fetch("/api/auth/csrf-token", {
+          credentials: "include",
+        });
+        const data = await response.json();
+        return data.csrfToken;
+      }
+
+      document
+        .getElementById("logoutForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          try {
+            const csrfToken = await getCsrfToken();
+            const response = await fetch("/api/auth/logout", {
+              method: "POST",
+              credentials: "include",
+              headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-Token": csrfToken,
+              },
+            });
+            if (response.ok) {
+              window.location.href = "/login.html";
+            }
+          } catch (error) {
+            console.error("Logout error:", error);
+          }
+        });
+      document
+        .getElementById("postJobForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const messageEl = document.getElementById("message");
+          messageEl.textContent = "";
+          const postButton = document.getElementById("postJobButton");
+          postButton.disabled = true;
+          const originalButtonText = postButton.textContent;
+          postButton.textContent = "Posting...";
+          const title = document.getElementById("title").value.trim();
+          const description = document
+            .getElementById("description")
+            .value.trim();
+          const location = document.getElementById("location").value.trim();
+          const salary = document.getElementById("salary").value.trim();
+          if (!title || !description) {
+            messageEl.textContent = "Title and Description are required.";
+            messageEl.classList.add("text-red-500");
+            postButton.disabled = false;
+            postButton.textContent = originalButtonText;
+            return;
+          }
+          const csrfToken = await getCsrfToken();
+          try {
+            const response = await fetch("/api/job", {
+              method: "POST",
+              credentials: "include",
+              headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-Token": csrfToken,
+              },
+              body: JSON.stringify({ title, description, location, salary }),
+            });
+            const result = await response.json();
+            if (!response.ok) {
+              messageEl.textContent = result.message || "Failed to post job.";
+              messageEl.classList.add("text-red-500");
+              postButton.disabled = false;
+              postButton.textContent = originalButtonText;
+            } else {
+              messageEl.textContent = "Job posted successfully!";
+              messageEl.classList.add("text-green-500");
+              setTimeout(() => {
+                window.location.href = "/employer-jobs.html";
+              }, 1000);
+            }
+          } catch (error) {
+            messageEl.textContent = "An unexpected error occurred.";
+            messageEl.classList.add("text-red-500");
+            postButton.disabled = false;
+            postButton.textContent = originalButtonText;
+          }
+        });
+    </script>
+  </body>
+</html>
