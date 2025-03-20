@@ -22,7 +22,8 @@
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.13.0",
     "sequelize": "^6.37.6",
-    "socket.io": "^4.8.1"
+    "socket.io": "^4.8.1",
+    "ulid": "^2.4.0"
   },
   "devDependencies": {
     "@tailwindcss/cli": "^4.0.14",
