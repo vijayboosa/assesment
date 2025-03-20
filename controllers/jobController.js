@@ -173,12 +173,14 @@ export const getJobApplications = async (req, res) => {
     }
     
     const { jobId } = req.params;
-    const job = await Job.findByPk(jobId,{attributes: ['title']});
+    const job = await Job.findByPk(jobId,{attributes: ['title', "employerId"]});
     if (!job) {
       return res.status(404).json({ message: 'Job not found.' });
     }
     // Verify that the job belongs to the logged-in employer.
     if (job.employerId !== req.userId) {
+      console.log(job.employerId, req.userId);
+      
       return res.status(403).json({ message: 'Unauthorized. You do not own this job.' });
     }
     const applications = await Application.findAll({
