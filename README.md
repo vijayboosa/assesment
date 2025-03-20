@@ -14,8 +14,7 @@ This project is a full-featured backend application for a job portal. Employers 
     - [1. Clone the Repository](#1-clone-the-repository)
     - [2. Install Dependencies](#2-install-dependencies)
     - [3. Configure Environment Variables](#3-configure-environment-variables)
-    - [4. Set Up the Database](#4-set-up-the-database)
-    - [5. Start the Application](#5-start-the-application)
+    - [4. Start the Application](#4-start-the-application)
     - [6. Access the Application](#6-access-the-application)
   - [API Routes Documentation](#api-routes-documentation)
     - [Base URL](#base-url)
@@ -40,7 +39,8 @@ This project is a full-featured backend application for a job portal. Employers 
     - [1. Performance \& Scalability](#1-performance--scalability)
     - [2. Real-Time Notifications Enhancements](#2-real-time-notifications-enhancements)
     - [3. Security Enhancements](#3-security-enhancements)
-    - [4. Developer Experience \& Documentation](#4-developer-experience--documentation)
+    - [4. Database \& Data Management](#4-database--data-management)
+    - [5. Developer Experience \& Documentation](#5-developer-experience--documentation)
 
 
 
@@ -192,15 +192,7 @@ NODE_ENV=development
 - **CLIENT_URL**: The URL for your frontend, used for CORS and WebSocket configuration.
 - **NODE_ENV**: Set to `development` when running locally.
 
-### 4. Set Up the Database
-
-Ensure that your MySQL server is running and that the database specified in `DB_NAME` exists. If you use migrations, run them as necessary (e.g., using Sequelize CLI):
-
-```bash
-npx sequelize-cli db:migrate
-```
-
-### 5. Start the Application
+### 4. Start the Application
 
 Start the server using:
 
@@ -576,7 +568,16 @@ While the current implementation meets the core requirements of the assessment, 
 - **Security Headers:**  
   Use libraries like `helmet` to set various HTTP headers for added security.
 
-### 4. Developer Experience & Documentation
+### 4. Database & Data Management
+
+- **Database Migrations:**  
+  Instead of using `sequelize.sync()`, use a dedicated migration tool (such as Sequelize CLI migrations) to manage database schema changes in production.
+
+- **Data Analytics & Reporting:**  
+  Incorporate data analytics to track job application trends, user activity, and system performance, which could be useful for both employers and platform administrators.
+
+
+### 5. Developer Experience & Documentation
 
 - **API Documentation:**  
   Generate interactive API documentation using Swagger/OpenAPI, making it easier for developers to understand and test the endpoints.
