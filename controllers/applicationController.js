@@ -27,6 +27,9 @@ export const rejectApplication = async (req, res) => {
     application.status = 'rejected';
     await application.save();
 
+    // Access the job seeker's ID
+    const applicantId = application.jobSeeker.id;
+    
     const io = req.app.get('io');
     emitToRole(
       io,
